@@ -1,0 +1,778 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Event Planner - Admin Dashboard</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --bg: #0a0e27;
+      --bg2: #151b3a;
+      --bg3: #1f2847;
+      --bg4: #2a3355;
+      --border: #3a4466;
+      --text: #e8eaf6;
+      --text2: #b0b8d4;
+      --text3: #7a8aad;
+      --accent: #c9a96e;
+      --accent-dim: rgba(201,169,110,0.1);
+      --radius-sm: 6px;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      line-height: 1.6;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px 0;
+      margin-bottom: 30px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    header h1 {
+      font-size: 24px;
+      font-weight: 600;
+    }
+
+    .logout-btn {
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 8px 16px;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      font-size: 13px;
+    }
+
+    .logout-btn:hover {
+      background: var(--bg4);
+    }
+
+    .tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 30px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .tab-btn {
+      padding: 12px 20px;
+      background: none;
+      border: none;
+      color: var(--text2);
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      font-size: 14px;
+      transition: all 0.3s;
+    }
+
+    .tab-btn.active {
+      color: var(--accent);
+      border-bottom-color: var(--accent);
+    }
+
+    .tab-btn:hover {
+      color: var(--text);
+    }
+
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    .card {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+
+    .card-title {
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 16px;
+      color: var(--accent);
+    }
+
+    .field-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+
+    .field-row.full {
+      grid-template-columns: 1fr;
+    }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .field label {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text2);
+      margin-bottom: 6px;
+    }
+
+    .field input,
+    .field select,
+    .field textarea {
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      color: var(--text);
+      font-family: inherit;
+      font-size: 13px;
+      padding: 10px 12px;
+      outline: none;
+      transition: all 0.3s;
+    }
+
+    .field input:focus,
+    .field select:focus,
+    .field textarea:focus {
+      border-color: var(--accent);
+      background: var(--bg4);
+    }
+
+    .btn {
+      background: var(--accent);
+      color: var(--bg);
+      border: none;
+      padding: 10px 20px;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      font-weight: 500;
+      font-size: 13px;
+      transition: all 0.3s;
+    }
+
+    .btn:hover {
+      opacity: 0.9;
+      transform: translateY(-1px);
+    }
+
+    .btn-secondary {
+      background: var(--bg3);
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+
+    .btn-secondary:hover {
+      background: var(--bg4);
+    }
+
+    .btn-danger {
+      background: #E24B4A;
+      color: #fff;
+    }
+
+    .customers-table {
+      width: 100%;
+      border-collapse: collapse;
+      background: var(--bg3);
+      border-radius: var(--radius-sm);
+      overflow: hidden;
+    }
+
+    .customers-table thead {
+      background: var(--bg4);
+    }
+
+    .customers-table th {
+      padding: 12px;
+      text-align: left;
+      font-weight: 600;
+      color: var(--accent);
+      font-size: 13px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .customers-table td {
+      padding: 12px;
+      border-bottom: 1px solid var(--border);
+      font-size: 13px;
+    }
+
+    .customers-table tr:hover {
+      background: var(--bg4);
+    }
+
+    .action-buttons {
+      display: flex;
+      gap: 8px;
+    }
+
+    .btn-small {
+      padding: 6px 12px;
+      font-size: 12px;
+    }
+
+    .copy-link {
+      background: var(--bg4);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 8px 12px;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      font-size: 12px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .copy-link:hover {
+      background: var(--bg3);
+    }
+
+    .link-box {
+      background: var(--bg4);
+      border: 1px solid var(--border);
+      padding: 12px;
+      border-radius: var(--radius-sm);
+      margin: 12px 0;
+      word-break: break-all;
+      font-family: monospace;
+      font-size: 12px;
+      color: var(--accent);
+    }
+
+    .success-message {
+      background: rgba(76, 175, 80, 0.1);
+      border: 1px solid rgba(76, 175, 80, 0.3);
+      color: #4caf50;
+      padding: 12px;
+      border-radius: var(--radius-sm);
+      margin-bottom: 16px;
+      font-size: 13px;
+    }
+
+    .error-message {
+      background: rgba(226, 75, 74, 0.1);
+      border: 1px solid rgba(226, 75, 74, 0.3);
+      color: #E24B4A;
+      padding: 12px;
+      border-radius: var(--radius-sm);
+      margin-bottom: 16px;
+      font-size: 13px;
+    }
+
+    .login-container {
+      max-width: 400px;
+      margin: 100px auto;
+      padding: 40px;
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+    }
+
+    .login-container h2 {
+      margin-bottom: 24px;
+      text-align: center;
+      color: var(--accent);
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 40px;
+      color: var(--text3);
+    }
+
+    .empty-state p {
+      margin-bottom: 20px;
+    }
+
+    .filter-row {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .filter-row .field {
+      flex: 1;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+      margin-bottom: 30px;
+    }
+
+    .stat-card {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 20px;
+      text-align: center;
+    }
+
+    .stat-number {
+      font-size: 32px;
+      font-weight: 700;
+      color: var(--accent);
+      margin-bottom: 8px;
+    }
+
+    .stat-label {
+      font-size: 13px;
+      color: var(--text2);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Login Screen -->
+    <div id="login-screen" class="login-container">
+      <h2>Admin Dashboard Login</h2>
+      <div class="field">
+        <label>Admin Password</label>
+        <input type="password" id="admin-password" placeholder="Enter admin password">
+      </div>
+      <button class="btn" style="width: 100%; margin-top: 20px;" onclick="adminLogin()">Login</button>
+    </div>
+
+    <!-- Dashboard -->
+    <div id="dashboard" style="display: none;">
+      <header>
+        <h1>Event Planner Admin</h1>
+        <button class="logout-btn" onclick="adminLogout()">Logout</button>
+      </header>
+
+      <div class="tabs">
+        <button class="tab-btn active" onclick="switchAdminTab('dashboard')">Dashboard</button>
+        <button class="tab-btn" onclick="switchAdminTab('customers')">Customers</button>
+        <button class="tab-btn" onclick="switchAdminTab('create')">Create Customer</button>
+      </div>
+
+      <!-- Dashboard Tab -->
+      <div id="tab-dashboard" class="tab-content active">
+        <div class="stats">
+          <div class="stat-card">
+            <div class="stat-number" id="stat-total">0</div>
+            <div class="stat-label">Total Customers</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-number" id="stat-pending">0</div>
+            <div class="stat-label">Pending Submissions</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-number" id="stat-completed">0</div>
+            <div class="stat-label">Completed</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">Recent Submissions</div>
+          <div id="recent-submissions">
+            <div class="empty-state">
+              <p>No submissions yet</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Customers Tab -->
+      <div id="tab-customers" class="tab-content">
+        <div class="card">
+          <div class="card-title">All Customers</div>
+          <div class="filter-row">
+            <div class="field">
+              <input type="text" id="search-customers" placeholder="Search by name or event type..." onkeyup="filterCustomers()">
+            </div>
+          </div>
+          <div id="customers-list">
+            <div class="empty-state">
+              <p>No customers created yet</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Create Customer Tab -->
+      <div id="tab-create" class="tab-content">
+        <div class="card">
+          <div class="card-title">Create New Customer</div>
+          <div id="create-message"></div>
+
+          <div class="field-row">
+            <div class="field">
+              <label>Customer Name</label>
+              <input type="text" id="create-name" placeholder="e.g. Sarah & Tom">
+            </div>
+            <div class="field">
+              <label>Event Type</label>
+              <select id="create-event-type">
+                <option value="">Select event type...</option>
+                <option value="Wedding Ceremony & Reception">Wedding Ceremony & Reception</option>
+                <option value="Wedding Reception Only">Wedding Reception Only</option>
+                <option value="Birthday party">Birthday party</option>
+                <option value="Anniversary">Anniversary</option>
+                <option value="Corporate event">Corporate event</option>
+                <option value="Engagement party">Engagement party</option>
+                <option value="School Formal">School Formal</option>
+                <option value="Xmas Party">Xmas Party</option>
+                <option value="Fashion Show">Fashion Show</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="field-row">
+            <div class="field">
+              <label>Event Date</label>
+              <input type="date" id="create-event-date">
+            </div>
+            <div class="field">
+              <label>Event Time</label>
+              <input type="time" id="create-event-time">
+            </div>
+          </div>
+
+          <div class="card" style="background: var(--bg4); border: 1px solid var(--border); margin-top: 20px;">
+            <div class="card-title">Payment Information</div>
+
+            <div class="field-row">
+              <div class="field">
+                <label>Deposit Amount</label>
+                <input type="number" id="create-deposit" placeholder="e.g. 500" min="0" step="0.01">
+              </div>
+              <div class="field">
+                <label>Deposit Due Date</label>
+                <input type="date" id="create-deposit-date">
+              </div>
+            </div>
+
+            <div class="field-row">
+              <div class="field">
+                <label>Total Event Cost</label>
+                <input type="number" id="create-total-cost" placeholder="e.g. 2500" min="0" step="0.01">
+              </div>
+              <div class="field">
+                <label>Final Payment Due Date</label>
+                <input type="date" id="create-final-date">
+              </div>
+            </div>
+
+            <div class="field-row full">
+              <div class="field">
+                <label>Payment Notes</label>
+                <textarea id="create-payment-notes" placeholder="e.g. 50% deposit required, final payment due 7 days before event..." style="min-height: 100px;"></textarea>
+              </div>
+            </div>
+          </div>
+
+          <button class="btn" style="margin-top: 20px; width: 100%;" onclick="createCustomer()">Create Customer & Generate Link</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const ADMIN_PASSWORD = 'vibes2026'; // Change this to your secure password
+    const GOOGLE_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzh4VLTc8vgkewtUx-hMvyv95brqj4s9kXpuHFWAC6X_ch39AUwQIr1JaKoUbKrVLun/userweb';
+
+    // Check if logged in
+    function checkLogin() {
+      const isLoggedIn = sessionStorage.getItem('admin-logged-in');
+      if (isLoggedIn) {
+        showDashboard();
+        loadCustomers();
+      }
+    }
+
+    function adminLogin() {
+      const password = document.getElementById('admin-password').value;
+      if (password === ADMIN_PASSWORD) {
+        sessionStorage.setItem('admin-logged-in', 'true');
+        showDashboard();
+        loadCustomers();
+      } else {
+        alert('Invalid password');
+      }
+    }
+
+    function adminLogout() {
+      sessionStorage.removeItem('admin-logged-in');
+      document.getElementById('login-screen').style.display = 'block';
+      document.getElementById('dashboard').style.display = 'none';
+    }
+
+    function showDashboard() {
+      document.getElementById('login-screen').style.display = 'none';
+      document.getElementById('dashboard').style.display = 'block';
+    }
+
+    function switchAdminTab(tab) {
+      document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+      document.getElementById('tab-' + tab).classList.add('active');
+      event.target.classList.add('active');
+    }
+
+    function generateUniqueId() {
+      const timestamp = Date.now();
+      const random = Math.random().toString(36).substring(2, 8).toUpperCase();
+      return `EVT-${random}-${timestamp.toString().slice(-6)}`;
+    }
+
+    function createCustomer() {
+      const name = document.getElementById('create-name').value.trim();
+      const eventType = document.getElementById('create-event-type').value;
+      const eventDate = document.getElementById('create-event-date').value;
+      const eventTime = document.getElementById('create-event-time').value;
+      const deposit = document.getElementById('create-deposit').value;
+      const depositDate = document.getElementById('create-deposit-date').value;
+      const totalCost = document.getElementById('create-total-cost').value;
+      const finalDate = document.getElementById('create-final-date').value;
+      const paymentNotes = document.getElementById('create-payment-notes').value;
+
+      if (!name || !eventType || !eventDate) {
+        showMessage('Please fill in all required fields', 'error');
+        return;
+      }
+
+      const customerId = generateUniqueId();
+      const customer = {
+        id: customerId,
+        name,
+        eventType,
+        eventDate,
+        eventTime,
+        deposit,
+        depositDate,
+        totalCost,
+        finalDate,
+        paymentNotes,
+        createdAt: new Date().toISOString(),
+        status: 'pending'
+      };
+
+      // Get existing customers from localStorage
+      let customers = JSON.parse(localStorage.getItem('vibe-customers') || '[]');
+      customers.push(customer);
+      localStorage.setItem('vibe-customers', JSON.stringify(customers));
+
+      // Send to Google Sheets
+      fetch(GOOGLE_APPS_SCRIPT_URL, {
+        method: 'POST',
+        body: JSON.stringify({
+          action: 'saveCustomer',
+          customerId: customerId,
+          customerName: name,
+          eventType: eventType,
+          eventDate: eventDate,
+          eventTime: eventTime,
+          depositAmount: deposit,
+          depositDueDate: depositDate,
+          totalEventCost: totalCost,
+          finalPaymentDueDate: finalDate,
+          paymentNotes: paymentNotes
+        })
+      })
+      .then(response => response.json())
+      .then(data => {
+        console.log('Customer saved to Google Sheets:', data);
+      })
+      .catch(error => {
+        console.error('Error saving to Google Sheets:', error);
+      });
+
+      // Generate link
+      const baseUrl = window.location.origin + window.location.pathname.replace('admin.html', 'index.html');
+      const link = `${baseUrl}?id=${customerId}`;
+
+      // Show success message with link
+      const messageHtml = `
+        <div style="background: rgba(76, 175, 80, 0.1); border: 1px solid rgba(76, 175, 80, 0.3); color: #4caf50; padding: 16px; border-radius: 6px; margin-bottom: 16px;">
+          <p style="margin-bottom: 12px;"><strong>✓ Customer created successfully!</strong></p>
+          <p style="margin-bottom: 12px;">Customer ID: <strong>${customerId}</strong></p>
+          <p style="margin-bottom: 12px;">Customer: <strong>${name}</strong></p>
+          <p style="margin-bottom: 12px;">Copy and send this link to the customer:</p>
+          <div style="background: var(--bg4); padding: 12px; border-radius: 4px; margin-bottom: 12px; word-break: break-all; font-family: monospace; font-size: 12px;">
+            ${link}
+          </div>
+          <button class="btn btn-small" onclick="copyToClipboard('${link}')">📋 Copy Link</button>
+        </div>
+      `;
+
+      document.getElementById('create-message').innerHTML = messageHtml;
+
+      // Clear form
+      document.getElementById('create-name').value = '';
+      document.getElementById('create-event-type').value = '';
+      document.getElementById('create-event-date').value = '';
+      document.getElementById('create-event-time').value = '';
+      document.getElementById('create-deposit').value = '';
+      document.getElementById('create-deposit-date').value = '';
+      document.getElementById('create-total-cost').value = '';
+      document.getElementById('create-final-date').value = '';
+      document.getElementById('create-payment-notes').value = '';
+
+      // Reload customers list
+      loadCustomers();
+    }
+
+    function loadCustomers() {
+      const customers = JSON.parse(localStorage.getItem('vibe-customers') || '[]');
+      const baseUrl = window.location.origin + window.location.pathname.replace('admin.html', 'index.html');
+
+      if (customers.length === 0) {
+        document.getElementById('customers-list').innerHTML = '<div class="empty-state"><p>No customers created yet</p></div>';
+        return;
+      }
+
+      let html = `
+        <table class="customers-table">
+          <thead>
+            <tr>
+              <th>Customer ID</th>
+              <th>Name</th>
+              <th>Event Type</th>
+              <th>Event Date</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+      `;
+
+      customers.forEach(customer => {
+        const link = `${baseUrl}?id=${customer.id}`;
+        html += `
+          <tr>
+            <td><code style="background: var(--bg4); padding: 4px 8px; border-radius: 4px;">${customer.id}</code></td>
+            <td>${customer.name}</td>
+            <td>${customer.eventType}</td>
+            <td>${customer.eventDate}</td>
+            <td>${customer.status}</td>
+            <td>
+              <div class="action-buttons">
+                <button class="btn btn-secondary btn-small" onclick="copyToClipboard('${link}')">📋 Copy Link</button>
+                <button class="btn btn-secondary btn-small" onclick="editCustomer('${customer.id}')">✏️ Edit</button>
+                <button class="btn btn-danger btn-small" onclick="deleteCustomer('${customer.id}')">🗑 Delete</button>
+              </div>
+            </td>
+          </tr>
+        `;
+      });
+
+      html += `</tbody></table>`;
+      document.getElementById('customers-list').innerHTML = html;
+
+      // Update stats
+      document.getElementById('stat-total').textContent = customers.length;
+      document.getElementById('stat-pending').textContent = customers.filter(c => c.status === 'pending').length;
+      document.getElementById('stat-completed').textContent = customers.filter(c => c.status === 'completed').length;
+    }
+
+    function filterCustomers() {
+      const searchText = document.getElementById('search-customers').value.toLowerCase();
+      const customers = JSON.parse(localStorage.getItem('vibe-customers') || '[]');
+      const filtered = customers.filter(c => 
+        c.name.toLowerCase().includes(searchText) || 
+        c.eventType.toLowerCase().includes(searchText)
+      );
+
+      const baseUrl = window.location.origin + window.location.pathname.replace('admin.html', 'index.html');
+
+      if (filtered.length === 0) {
+        document.getElementById('customers-list').innerHTML = '<div class="empty-state"><p>No matches found</p></div>';
+        return;
+      }
+
+      let html = `
+        <table class="customers-table">
+          <thead>
+            <tr>
+              <th>Customer ID</th>
+              <th>Name</th>
+              <th>Event Type</th>
+              <th>Event Date</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+      `;
+
+      filtered.forEach(customer => {
+        const link = `${baseUrl}?id=${customer.id}`;
+        html += `
+          <tr>
+            <td><code style="background: var(--bg4); padding: 4px 8px; border-radius: 4px;">${customer.id}</code></td>
+            <td>${customer.name}</td>
+            <td>${customer.eventType}</td>
+            <td>${customer.eventDate}</td>
+            <td>${customer.status}</td>
+            <td>
+              <div class="action-buttons">
+                <button class="btn btn-secondary btn-small" onclick="copyToClipboard('${link}')">📋 Copy Link</button>
+                <button class="btn btn-secondary btn-small" onclick="editCustomer('${customer.id}')">✏️ Edit</button>
+                <button class="btn btn-danger btn-small" onclick="deleteCustomer('${customer.id}')">🗑 Delete</button>
+              </div>
+            </td>
+          </tr>
+        `;
+      });
+
+      html += `</tbody></table>`;
+      document.getElementById('customers-list').innerHTML = html;
+    }
+
+    function deleteCustomer(id) {
+      if (confirm('Are you sure you want to delete this customer?')) {
+        let customers = JSON.parse(localStorage.getItem('vibe-customers') || '[]');
+        customers = customers.filter(c => c.id !== id);
+        localStorage.setItem('vibe-customers', JSON.stringify(customers));
+        loadCustomers();
+      }
+    }
+
+    function editCustomer(id) {
+      alert('Edit functionality coming soon');
+    }
+
+    function copyToClipboard(text) {
+      navigator.clipboard.writeText(text).then(() => {
+        alert('Link copied to clipboard!');
+      });
+    }
+
+    function showMessage(message, type) {
+      const messageClass = type === 'error' ? 'error-message' : 'success-message';
+      document.getElementById('create-message').innerHTML = `<div class="${messageClass}">${message}</div>`;
+      setTimeout(() => {
+        document.getElementById('create-message').innerHTML = '';
+      }, 5000);
+    }
+
+    // Initialize
+    checkLogin();
+  </script>
+</body>
+</html>
